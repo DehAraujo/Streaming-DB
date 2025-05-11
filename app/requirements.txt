@@ -1,0 +1,6 @@
+elasticsearch
+kafka-python
+faker
+pymongo
+psycopg2-binary
+
