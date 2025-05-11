@@ -1,0 +1,10 @@
+# requirements.txt para o serviço s1
+
+fastapi
+uvicorn
+kafka-python
+pymongo
+sqlalchemy
+psycopg2-binary
+elasticsearch
+redis
