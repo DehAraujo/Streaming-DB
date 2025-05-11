@@ -1,0 +1,10 @@
+# requirements.txt para o serviço s2
+
+fastapi
+uvicorn
+kafka-python
+pymongo
+redis
+psycopg2-binary
+
+
