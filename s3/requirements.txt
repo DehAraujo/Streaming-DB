@@ -1,0 +1,7 @@
+# requirements.txt para o serviço s3
+
+fastapi
+uvicorn
+kafka-python
+elasticsearch
+redis
