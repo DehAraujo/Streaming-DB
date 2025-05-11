@@ -1,0 +1,3 @@
+fastapi
+uvicorn
+httpx  # para chamadas HTTP entre serviços
