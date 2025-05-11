@@ -1,0 +1,92 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: streaming
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.3
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  s1:
+    build: ./s1
+    depends_on:
+      - kafka
+    command: ["python", "main.py"]
+    volumes:
+      - ./db:/db
+    environment:
+      - PYTHONPATH=/app:/db
+
+  s2:
+    build: ./s2
+    volumes:
+      - ./db:/db
+    environment:
+      - PYTHONPATH=/app:/db
+
+  s3:
+    build: ./s3
+    depends_on:
+      - kafka
+      - elasticsearch
+    command: ["python", "main.py"]
+    volumes:
+      - ./db:/db
+    environment:
+      - PYTHONPATH=/app:/db
+
+  fastapi:
+    build: ./fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      - s1
+      - s2
+      - s3
+    volumes:
+      - ./db:/db
+    environment:
+      - PYTHONPATH=/app:/db
